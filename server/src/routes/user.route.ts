@@ -1,11 +1,11 @@
 import { Router } from "express";
-import { getUserDetails, loginUser, registerUser } from "../services/user.service.js";
-import { userMiddleware } from "../middleware/user.middleware.js";
+import { catchAsync } from "../utils/error-handler.js";
+import { loginUser, registerUser, updatePassword } from "../services/user.service.js";
 
 const userRouter = Router();
 
-userRouter.post("/signup", registerUser);
-userRouter.post("/login", loginUser)
-userRouter.get("/me", userMiddleware, getUserDetails)
+userRouter.post("/signup", catchAsync(registerUser));
+userRouter.post("/login", catchAsync(loginUser))
+userRouter.post("/reset", catchAsync(updatePassword))
 
 export default userRouter;

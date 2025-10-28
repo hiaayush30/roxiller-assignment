@@ -1,0 +1,56 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id              String        @id @default(cuid())
+  name            String
+  email           String        @unique
+  password        String
+  role            String        @default("user")
+  address         String?
+  stores          Store[]
+  storeRatings    StoreRating[]
+  ratingsGiven    OwnerRating[] @relation("ratings_given")
+  ratingsReceived OwnerRating[] @relation("ratings_recieved")
+}
+
+model Store {
+  id      String        @id @default(cuid())
+  name    String
+  email   String
+  address String
+  ownerId String
+  user    User          @relation(fields: [ownerId], references: [id])
+  ratings StoreRating[]
+}
+
+model StoreRating {
+  id      String @id @default(cuid())
+  rating  Int
+  storeId String
+  store   Store  @relation(fields: [storeId], references: [id])
+  userId  String
+  user    User   @relation(fields: [userId], references: [id])
+}
+
+model OwnerRating {
+  id      String @id @default(cuid())
+  rating  Int
+  userId  String
+  user    User   @relation("ratings_given", fields: [userId], references: [id])
+  ownerId String
+  owner   User   @relation("ratings_recieved", fields: [ownerId], references: [id])
+}

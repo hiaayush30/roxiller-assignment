@@ -1,11 +1,8 @@
 import dotenv from "dotenv"
 dotenv.config()
 import express from "express"
-import { connectDB } from "./utils/db.js";
-import userRouter from "./routes/user.route.js";
 import cors from "cors"
-import promptRouter from "./routes/prompt.route.js";
-import settingRouter from "./routes/setting.route.js";
+import userRouter from "./routes/user.route.js";
 
 
 const app = express();
@@ -24,13 +21,11 @@ app.get("/api", (req, res) => {
     })
 })
 
-app.use("/api/user", userRouter)
-app.use("/api/prompt", promptRouter)
-app.use("/api/setting", settingRouter)
+app.use("/api/v1/user", userRouter)
+// app.use("/api/v1/owner", userRouter)
+// app.use("/api/v1/admin", userRouter)
+// app.use("/api/v1/store", userRouter)
 
-connectDB()
-    .then(() => {
-        app.listen(process.env.PORT || 5000, () => {
-            console.log("server running on port " + (process.env.PORT ?? 5000))
-        })
-    })
+app.listen(process.env.PORT || 5000, () => {
+    console.log("server running on port " + (process.env.PORT ?? 5000))
+})
