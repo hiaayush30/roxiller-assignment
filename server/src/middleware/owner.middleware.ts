@@ -1,7 +1,7 @@
 import type { NextFunction, Request, Response } from "express";
 import jwt from "jsonwebtoken"
 
-export const adminMiddleware = async (req: Request, res: Response, next: NextFunction) => {
+export const ownerMiddleware = async (req: Request, res: Response, next: NextFunction) => {
     try {
         const token = req.headers["authorization"]
         if (!token) {
