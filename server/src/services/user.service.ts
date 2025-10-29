@@ -3,7 +3,6 @@ import prismaClient from "../utils/prisma.js";
 import { LoginUserSchema, RegisterUserSchema } from "../schema/user.schema.js";
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken"
-import { json } from "zod";
 
 export const registerUser = async (req: Request, res: Response): Promise<any> => {
     const parsed = RegisterUserSchema.safeParse(req.body)
@@ -75,40 +74,49 @@ export const loginUser = async (req: Request, res: Response) => {
     })
 }
 
-export const updatePassword = async (req: Request, res: Response) => {
-    const { oldPassword, newPassword } = req.body;
-    if (!oldPassword || !newPassword) {
-        return res.status(403), json({
-            error: "Invalid request"
-        })
-    }
+export const searchStores = async (req: Request, res: Response) => {
+    const { query = "" } = req.params
 
-    const user = await prismaClient.user.findFirst({
+    const stores = prismaClient.store.findMany({
         where: {
-            id: req.user?.id!
-        }
-    })
-    if (!user) {
-        return res.status(403).json({
-            error: "user not found"
-        })
-    }
-    const matchPass = bcrypt.compareSync(oldPassword, user.id)
-    if (!matchPass) {
-        return res.status(403).json({
-            error: "password incorrect"
-        })
-    }
-    const hashedPass = bcrypt.hashSync(newPassword, 5)
-    await prismaClient.user.update({
-        where: {
-            id: req.user?.id!
+            OR: [
+                {
+                    name: {
+                        contains: query
+                    }
+                },
+                {
+                    address: {
+                        contains: query
+                    }
+                }
+            ]
         },
-        data: {
-            password: hashedPass
+        include: {
+            ratings: true,
+            _count: true
         }
     })
     return res.status(200).json({
-        message:"password updated"
+        stores
+    })
+}
+
+export const addRating = async (req: Request, res: Response) => {
+    const { rating, storeId } = req.body;
+    if (!rating || !storeId) {
+        return res.status(403).json({
+            error: "Invalid request"
+        })
+    }
+    await prismaClient.storeRating.create({
+        data: {
+            rating,
+            userId: req.user?.id!,
+            storeId
+        }
+    })
+    return res.status(200).json({
+        message:"rating added"
     })
 }

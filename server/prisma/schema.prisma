@@ -30,7 +30,6 @@ model User {
 model Store {
   id      String        @id @default(cuid())
   name    String
-  email   String
   address String
   ownerId String
   user    User          @relation(fields: [ownerId], references: [id])
