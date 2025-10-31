@@ -29,6 +29,9 @@ export const registerUser = async (req: Request, res: Response): Promise<any> =>
             email,
             password: hashedPassword,
             address,
+        },
+        omit:{
+            password:true
         }
     })
     return res.status(201).json({
@@ -60,7 +63,7 @@ export const loginUser = async (req: Request, res: Response) => {
             error: "email or password incorrect"
         })
     }
-    const token = jwt.sign({ email, role: user.role, id: user._id }, process.env.JWT_SECRET!, {
+    const token = jwt.sign({ email, role: user.role, id: user.id }, process.env.JWT_SECRET!, {
         expiresIn: "30d"
     })
     res.setHeader("authorization", token)
@@ -68,7 +71,7 @@ export const loginUser = async (req: Request, res: Response) => {
         "user": {
             "email": user.email,
             "role": user.role,
-            "id": user._id
+            "id": user.id
         },
         message: "logged in successfully"
     })

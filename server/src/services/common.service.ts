@@ -45,9 +45,6 @@ export const getStoresInfo = async (req: Request, res: Response) => {
     const stores = prismaClient.store.findMany({
         skip: (Number(page) - 1) * Number(items),
         take: Number(items),
-        omit: {
-            password: true
-        },
         include: {
             ratings: true,
             _count: true
