@@ -20,7 +20,7 @@ export const updatePassword = async (req: Request, res: Response) => {
             error: "user not found"
         })
     }
-    const matchPass = bcrypt.compareSync(oldPassword, user.id)
+    const matchPass = bcrypt.compareSync(oldPassword, user.password)
     if (!matchPass) {
         return res.status(403).json({
             error: "password incorrect"
@@ -52,5 +52,30 @@ export const getStoresInfo = async (req: Request, res: Response) => {
     })
     return res.status(200).json({
         stores
+    })
+}
+
+export const getMe = async (req: Request, res: Response) => {
+    const { id } = req.params;
+    if (!id) {
+        return res.status(403).json({
+            error: "Invalid request | id required"
+        })
+    }
+    const user = await prismaClient.user.findFirst({
+        where: {
+            id
+        },
+        omit:{
+            password:true
+        }
+    })
+    if(!user){
+        return res.status(403).json({
+            error:"user not found"
+        })
+    }
+    return res.status(200).json({
+        user
     })
 }

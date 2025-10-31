@@ -7,6 +7,7 @@ import jwt from "jsonwebtoken"
 export const registerUser = async (req: Request, res: Response): Promise<any> => {
     const parsed = RegisterUserSchema.safeParse(req.body)
     if (!parsed.success) {
+        console.log(parsed.error.issues)
         return res.status(403).json({
             error: parsed.error.issues.join(",")
         })

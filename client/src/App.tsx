@@ -1,36 +1,54 @@
-import { useEffect, useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
-import './App.css'
+import { BrowserRouter, Navigate, Route, Routes } from 'react-router-dom';
+import { ToastContainer } from 'react-toastify';
+// Import useEffect
+import { useEffect } from 'react';
+import { useAuthStore } from './store/useAuthStore';
+import Signup from './pages/Signup';
+import Login from './pages/Login';
+import Layout from './Layout';
+import { FullPageLoader } from './components/Loader';
+import Home from './pages/Home';
+import Landing from './pages/Landing';
 
-function App() {
-  const [count, setCount] = useState(0)
-  useEffect(()=>{
-    
-  })
+const App = () => {
+  const { user, isLoading, fetchUser } = useAuthStore();
+
+  // Call fetchUser once when the component mounts
+  useEffect(() => {
+    fetchUser();
+  }, [fetchUser]);
+
+  if (isLoading) {
+    return <FullPageLoader />
+  }
+
 
   return (
     <>
-      <div>
-        <a href="https://vite.dev" target="_blank">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
-      </div>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.tsx</code> and save to test HMR
-        </p>
-      </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
+      <BrowserRouter>
+        {/* Unauthenticated Routes */}
+        {!user &&
+          <Routes>
+            <Route path='/' element={<Landing />} />
+            <Route path='/signup' element={<Signup />} />
+            <Route path='/login' element={<Login />} />
+            {/* Redirect any bad path to login if unauthorized */}
+            <Route path='*' element={<Navigate to={'/login'} replace />} />
+          </Routes>}
+
+        {/* Authenticated Routes */}
+        {user &&
+          <Routes>
+            <Route path='/' element={<Layout />}>
+              <Route index element={<Navigate to={'home'} replace={true} />} />
+              <Route path='home' element={<Home />} />
+              {/* Add other authenticated routes here */}
+            </Route>
+            {/* Redirect any bad path to home if authorized */}
+            <Route path='*' element={<Navigate to={'/home'} replace />} />
+          </Routes>}
+        <ToastContainer />
+      </BrowserRouter>
     </>
   )
 }
